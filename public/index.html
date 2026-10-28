@@ -1,0 +1,13 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Cityline GPT Bridge</title><link rel="stylesheet" href="/style.css"></head>
+<body><main>
+<header><span class="eyebrow">LOCAL CONTROL · SINGLE PARTICIPANT</span><h1>Cityline GPT Bridge</h1><p>GPT 发起任务，本机执行。先用虚构资料体验流程。</p></header>
+<section><h2>连接本机服务</h2><label>服务密钥<input id="token" type="password" autocomplete="off" placeholder="从本机 .env 读取；不要发到聊天或 GitHub"></label><p class="note">密钥仅保留在当前页面内存中。普通网页不会自动连接 GPT；接入步骤见源码中的 integrations 与 docs。</p></section>
+<section><h2>一位参与者</h2><form id="createForm">
+<div class="row"><label>英文全名<input id="fullName" value="CHAN TAI MAN" required></label><label>邮箱<input id="email" type="email" value="participant@example.com" required></label></div>
+<div class="row"><label>国家区号<input id="countryCode" value="1" required></label><label>电话号码<input id="phone" value="2025550123" required></label></div>
+<div class="row"><label>号码来源<input id="provider" value="Demo"></label><label>运行模式<select id="mode"><option value="demo">演示 · 不操作网站</option><option value="live">真实 · 需要本机启用与核实配置</option></select></label></div>
+<label class="check"><input id="registerAccount" type="checkbox" checked>包含账号注册步骤</label><button type="submit">创建任务</button></form></section>
+<section><div class="row title-row"><h2>执行进度</h2><button id="refresh" class="secondary" type="button">刷新任务</button></div><label>任务编号<input id="taskId" placeholder="创建后自动填入，也可粘贴已有任务编号"></label><div id="status" role="status" aria-live="polite">等待创建任务。</div><button id="start" type="button" disabled>开始任务</button><form id="resumeForm" hidden><p id="challengePrompt"></p><label id="codeLabel" hidden>当前验证码<input id="code" autocomplete="off"></label><label id="referenceLabel" hidden>确认邮件中的编号<input id="confirmationNumber" autocomplete="off"></label><label id="confirmLabel" class="check"><input id="confirmed" type="checkbox">我已完成或明确同意上述当前步骤</label><button type="submit">继续当前步骤</button></form></section>
+<p id="feedback" role="alert"></p><footer>真实页面适配、美国 +1 与 DuoPlus 接码仍待核实。源码不含参与者资料、账号密码或服务密钥。</footer>
+</main><script type="module" src="/app.mjs"></script></body></html>

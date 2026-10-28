@@ -1,0 +1,19 @@
+{
+  "name": "cityline-gpt-bridge",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Single-participant GPT/Codex bridge for a locally controlled Cityline registration workflow.",
+  "license": "MIT",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "init": "node scripts/init.mjs",
+    "start": "node --env-file=.env src/server.mjs",
+    "demo": "node src/demo.mjs",
+    "mcp": "node --env-file=.env integrations/mcp.mjs",
+    "mcp:local": "node --env-file=.env integrations/local-mcp.mjs",
+    "unlock": "node --env-file=.env scripts/unlock.mjs",
+    "test": "node --test tests/*.test.mjs integrations/*.test.mjs"
+  },
+  "dependencies": { "playwright": "1.64.1" }
+}

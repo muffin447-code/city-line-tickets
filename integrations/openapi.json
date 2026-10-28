@@ -1,0 +1,475 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Cityline One-Participant Bridge",
+    "version": "0.1.0",
+    "description": "Connect a private Custom GPT to a local browser worker. The server placeholder must be replaced; this file does not connect itself to ChatGPT."
+  },
+  "servers": [
+    {
+      "url": "https://cityline-bridge.example.invalid",
+      "description": "UNCONFIGURED PLACEHOLDER: replace with your authenticated HTTPS origin."
+    }
+  ],
+  "security": [
+    {
+      "BridgeBearer": []
+    }
+  ],
+  "paths": {
+    "/v1/tasks": {
+      "post": {
+        "operationId": "createCitylineTask",
+        "summary": "Create the one-participant task",
+        "description": "Create or recover a task for one participant. Demo is a local simulation; live requires a locally verified website profile. No password or API key is accepted.",
+        "x-openai-isConsequential": true,
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateTask"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Masked task progress. Poll using getCitylineTask when status is running.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid task input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid bridge authentication."
+          },
+          "409": {
+            "description": "Task state or current challenge changed. Read the task again."
+          }
+        }
+      }
+    },
+    "/v1/tasks/{id}": {
+      "get": {
+        "operationId": "getCitylineTask",
+        "summary": "Read masked task progress",
+        "description": "Read current progress and its one-use checkpoint. This request does not operate a browser.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Task UUID returned by createCitylineTask."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Masked task progress. Poll using getCitylineTask when status is running.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid task input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid bridge authentication."
+          },
+          "409": {
+            "description": "Task state or current challenge changed. Read the task again."
+          }
+        }
+      }
+    },
+    "/v1/tasks/{id}/start": {
+      "post": {
+        "operationId": "startCitylineTask",
+        "summary": "Start a task",
+        "description": "Queue browser work and return promptly. Poll task progress. Stops for current verification and approval checkpoints.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Task UUID returned by createCitylineTask."
+          }
+        ],
+        "x-openai-isConsequential": true,
+        "responses": {
+          "202": {
+            "description": "Masked task progress. Poll using getCitylineTask when status is running.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid task input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid bridge authentication."
+          },
+          "409": {
+            "description": "Task state or current challenge changed. Read the task again."
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "properties": {}
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/tasks/{id}/resume": {
+      "post": {
+        "operationId": "resumeCitylineTask",
+        "summary": "Answer the current checkpoint",
+        "description": "Use only the latest challengeId and exactly one answer. Each account creation or ballot submission needs explicit current user approval. Never reuse prior approval.",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "description": "Task UUID returned by createCitylineTask."
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResumeTask"
+              }
+            }
+          }
+        },
+        "x-openai-isConsequential": true,
+        "responses": {
+          "202": {
+            "description": "Masked task progress. Poll using getCitylineTask when status is running.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Task"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid task input.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid bridge authentication."
+          },
+          "409": {
+            "description": "Task state or current challenge changed. Read the task again."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BridgeBearer": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "Private bridge token"
+      }
+    },
+    "schemas": {
+      "Participant": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "fullName",
+          "email",
+          "countryCode",
+          "phone"
+        ],
+        "properties": {
+          "fullName": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "maxLength": 254
+          },
+          "countryCode": {
+            "type": "string",
+            "pattern": "^[1-9][0-9]{0,2}$"
+          },
+          "phone": {
+            "type": "string",
+            "minLength": 4,
+            "maxLength": 24
+          },
+          "provider": {
+            "type": "string",
+            "maxLength": 80
+          }
+        }
+      },
+      "Task": {
+        "type": "object",
+        "required": [
+          "id",
+          "mode",
+          "status",
+          "stage",
+          "message",
+          "participant",
+          "updatedAt"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "demo",
+              "live"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "created",
+              "running",
+              "needs_input",
+              "needs_confirmation",
+              "awaiting_email",
+              "completed",
+              "blocked",
+              "failed"
+            ]
+          },
+          "stage": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "participant": {
+            "type": "object",
+            "properties": {
+              "fullNameMasked": {
+                "type": "string"
+              },
+              "emailMasked": {
+                "type": "string"
+              },
+              "phoneMasked": {
+                "type": "string"
+              }
+            }
+          },
+          "challenge": {
+            "type": "object",
+            "required": [
+              "id",
+              "kind",
+              "prompt"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "otp",
+                  "captcha",
+                  "terms",
+                  "password",
+                  "create_account",
+                  "submit_ballot",
+                  "email_confirmation"
+                ]
+              },
+              "prompt": {
+                "type": "string"
+              }
+            }
+          },
+          "evidence": {
+            "type": "object",
+            "properties": {
+              "source": {
+                "type": "string",
+                "description": "user_reported means the service has not independently verified the email."
+              },
+              "confirmationNumber": {
+                "type": "string"
+              }
+            }
+          },
+          "updatedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "CreateTask": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "participant",
+          "mode",
+          "registerAccount"
+        ],
+        "properties": {
+          "participant": {
+            "$ref": "#/components/schemas/Participant"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "demo",
+              "live"
+            ]
+          },
+          "registerAccount": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ResumeTask": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "challengeId"
+        ],
+        "properties": {
+          "challengeId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "code": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 32,
+            "description": "Only the current verification code; never include a password or API key."
+          },
+          "confirmed": {
+            "type": "boolean",
+            "const": true,
+            "description": "Only after current explicit approval, or local completion of the current manual step."
+          },
+          "confirmationNumber": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120,
+            "description": "User-provided confirmation email reference; remains user-reported evidence."
+          }
+        },
+        "oneOf": [
+          {
+            "required": [
+              "code"
+            ]
+          },
+          {
+            "required": [
+              "confirmed"
+            ]
+          },
+          {
+            "required": [
+              "confirmationNumber"
+            ]
+          }
+        ]
+      },
+      "Error": {
+        "type": "object",
+        "required": [
+          "error"
+        ],
+        "properties": {
+          "error": {
+            "type": "object",
+            "required": [
+              "code",
+              "message"
+            ],
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "message": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

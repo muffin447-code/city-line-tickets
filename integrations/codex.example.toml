@@ -1,0 +1,16 @@
+# Copy the relevant table to your Codex MCP settings after reviewing the paths.
+# This file is an example only; it is not installed automatically.
+# Use an absolute Node >=22 executable path if node is not on Codex's PATH.
+[mcp_servers.cityline_single]
+command = "node"
+args = ["--env-file=/ABSOLUTE/PATH/cityline-gpt-bridge/.env", "/ABSOLUTE/PATH/cityline-gpt-bridge/integrations/local-mcp.mjs"]
+cwd = "/ABSOLUTE/PATH/cityline-gpt-bridge"
+enabled = true
+startup_timeout_sec = 15
+tool_timeout_sec = 30
+enabled_tools = ["create_cityline_task", "get_cityline_task", "start_cityline_task", "resume_cityline_task"]
+# The private token remains in the local .env file, outside the repository.
+# Do not paste a token literal into a public configuration example.
+# local-mcp starts an owned loopback bridge when absent, or verifies and reuses
+# an existing authenticated bridge on the configured port. It does not publish
+# the API or silently move to a different port.
